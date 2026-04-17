@@ -4,7 +4,8 @@
 
 
 def new_node(key, value):
-    """Estructura que contiene la información a guardar en un nodo de un árbol binario
+    """
+    Crea una nueva entrada (de tipo :ref:`bst_node<bst-node>`) de un árbol binario con una llave y un valor dados.
 
     Se crea un nodo con los siguientes atributos:
     - **key**: Llave del nodo
@@ -34,7 +35,8 @@ def new_node(key, value):
 
 
 def get_value(my_node):
-    """Retorna el valor asociado a un nodo
+    """
+    Obtiene el valor ``value`` de un nodo recibido.
 
     :param my_node: El nodo con la iformación
     :type my_node: bst_node
@@ -49,7 +51,8 @@ def get_value(my_node):
 
 
 def get_key(my_node):
-    """Retorna la llave asociada a un nodo
+    """
+    Obtiene la llave ``key`` de un nodo recibido.
 
     :param my_node: El nodo con la información
     :type my_node: bst_node
