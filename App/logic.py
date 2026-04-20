@@ -33,6 +33,10 @@ import datetime
 # TODO Realice la importación de LinearProbing (lp) o Separate Chaining (sp) como estructura de datos auxiliar para sus requerimientos
 
 data_dir = os.path.dirname(os.path.realpath('__file__')) + '/Data/'
+from DataStructures.List import array_list as al
+from DataStructures.List import single_linked_list as slt
+from DataStructures.Tree import red_black_tree as rbt
+from DataStructures.Map import map_linear_probing as lp
 
 
 
