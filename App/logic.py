@@ -28,11 +28,15 @@ import os
 import csv
 import datetime
 
-from DataStructures.Tree import red_black_tree as rbt
-from DataStructures.List import array_list as al
-from DataStructures.Map import map_linear_probing as lp
+# DONE Realice la importación del Árbol Rojo Negro
+# DONE Realice la importación de ArrayList (al) o SingleLinked (sl) como estructura de datos auxiliar para sus requerimientos
+# DONE Realice la importación de LinearProbing (lp) o Separate Chaining (sp) como estructura de datos auxiliar para sus requerimientos
 
 data_dir = os.path.dirname(os.path.realpath('__file__')) + '/Data/'
+from DataStructures.List import array_list as al
+from DataStructures.List import single_linked_list as slt
+from DataStructures.Tree import red_black_tree as rbt
+from DataStructures.Map import map_linear_probing as lp
 
 
 
@@ -52,6 +56,7 @@ def new_logic():
 
     analyzer["crimes"] = al.new_list()
     analyzer["dateIndex"] = rbt.new_map()
+    # DONE Crear el índice ordenado por áreas reportadas
     analyzer["areaIndex"] = rbt.new_map()
     return analyzer
 
@@ -79,6 +84,7 @@ def add_crime(analyzer, crime):
     """
     al.add_last(analyzer['crimes'], crime)
     update_date_index(analyzer['dateIndex'], crime)
+    # DONE Actualizar el indice por areas reportadas
     update_area_index(analyzer['areaIndex'], crime)
     return analyzer
 
@@ -89,16 +95,19 @@ def update_area_index(map, crime):
     si el area es nueva, se crea una entrada para el indice y se adiciona
     y si el area son ["", " ", None] se utiliza el valor por defecto 9999
     """
-    area = crime['REPORTING_AREA']
-    if area is None or area == "" or area == " ":
+    # DONE Implementar actualizacion del indice por areas reportadas
+    area = crime.get("REPORTING_AREA")
+    if area == "" or area == " " or area is None:
         area = 9999
     else:
         area = int(area)
     entry = rbt.get(map, area)
     if entry is None:
-        entry = new_area_entry()
-        rbt.put(map, area, entry)
-    al.add_last(entry['lstcrimes'], crime)
+        datentry = new_data_entry(crime)
+        rbt.put(map, area, datentry)
+    else:
+        datentry = entry
+    add_date_index(datentry, crime)
     return map
 
 
@@ -220,6 +229,7 @@ def index_height_areas(analyzer):
     """
     Altura del arbol por areas
     """
+    # DOne Retornar la altura del árbol por areas
     return rbt.height(analyzer["areaIndex"])
 
 
@@ -227,6 +237,7 @@ def index_size_areas(analyzer):
     """
     Numero de elementos en el indice por areas
     """
+    # DONE Retornar el numero de elementos en el árbol por areas
     return rbt.size(analyzer["areaIndex"])
 
 
@@ -234,6 +245,7 @@ def min_key_areas(analyzer):
     """
     Llave mas pequena por areas
     """
+    # DONE Retornar la llave más pequeña del árbol por áreas
     return rbt.get_min(analyzer["areaIndex"])
 
 
@@ -241,16 +253,30 @@ def max_key_areas(analyzer):
     """
     Llave mas grande por areas
     """
+    # DONE Retornar la llave más grande del árbol por áreas
     return rbt.get_max(analyzer["areaIndex"])
 
 def get_crimes_by_range_area(analyzer, initialArea, finalArea):
     """
     Retorna el numero de crimenes en un rango de areas
     """
-    lst = rbt.values(analyzer["areaIndex"], int(initialArea), int(finalArea))
+    # DONE Completar la consulta de crimenes por rango de areas
+    if initialArea == "":
+        initialArea = 0
+    else:
+        initialArea = int(initialArea)
+
+    if finalArea == "":
+        finalArea = 9999
+    else:
+        finalArea = int(finalArea)
+    lst = rbt.values(analyzer["areaIndex"], initialArea, finalArea)
     totalcrimes = 0
-    for lstarea in lst:
+    current = lst["first"]
+    while current is not None:
+        lstarea = current["info"]
         totalcrimes += al.size(lstarea["lstcrimes"])
+        current = current["next"]
     return totalcrimes
 
 def get_crimes_by_range(analyzer, initialDate, finalDate):
@@ -261,8 +287,11 @@ def get_crimes_by_range(analyzer, initialDate, finalDate):
     finalDate = datetime.datetime.strptime(finalDate, '%Y-%m-%d')
     lst = rbt.values(analyzer["dateIndex"], initialDate.date(), finalDate.date())
     totalcrimes = 0
-    for lstdate in lst:
+    current = lst["first"]
+    while current is not None:
+        lstdate = current["info"]
         totalcrimes += al.size(lstdate["lstcrimes"])
+        current = current["next"]
     return totalcrimes
 
 

@@ -1,42 +1,27 @@
 from DataStructures.Map import map_linear_probing as lp 
 from DataStructures.Tree import rbt_node
-from DataStructures.List import single_linked_list as sl
+from DataStructures.List import single_linked_list as slt
 
 RED = rbt_node.RED
 BLACK = rbt_node.BLACK
 
 def new_map():
-    """
-    Crea una tabla de simbolos ordenada basa en un árbol rojo-negro (RBT) vacia
-
-    Se crea una tabla de simbolos ordenada con root = None y type = "RBT"
-    """
     lp_map = lp.new_map(16, 0.5)
     lp_map['root'] = None
     lp_map['type'] = "RBT"
     return lp_map
 
 def is_red(node):
-    """
-    Verifica si un nodo es rojo.
-    """
     if node is None:
         return False
     return rbt_node.is_red(node)
 
 def size_tree(node):
-    """
-    Retorna el tamaño del subárbol.
-    """
     if node is None:
         return 0
-    return node["size"]
-
+    return node.get("size", 1)
 
 def rotate_left(node):
-    """
-    Rotación a la izquierda.
-    """
     x = node["right"]
     node["right"] = x["left"]
     x["left"] = node
@@ -47,9 +32,6 @@ def rotate_left(node):
     return x
 
 def rotate_right(node):
-    """
-    Rotación a la derecha.
-    """
     x = node["left"]
     node["left"] = x["right"]
     x["right"] = node
@@ -60,9 +42,6 @@ def rotate_right(node):
     return x
 
 def flip_colors(node):
-    """
-    Invierte los colores del nodo y sus hijos.
-    """
     node["color"] = not node["color"]
     if node["left"] is not None:
         node["left"]["color"] = not node["left"]["color"]
@@ -70,20 +49,12 @@ def flip_colors(node):
         node["right"]["color"] = not node["right"]["color"]
 
 def put(my_rbt, key, value):
-    """
-    Inserta un par clave/valor en el árbol.
-    Si la clave ya existe, actualiza el valor. Usa insert_node()
-    """
     my_rbt['root'] = insert_node(my_rbt['root'], key, value)
     if my_rbt['root'] is not None:
         my_rbt['root']["color"] = BLACK
     return my_rbt
 
 def insert_node(root, key, value):
-    """
-    Ingresa una pareja llave,valor. Si la llave ya existe, se reemplaza el valor.
-    Es usada en la función insert()
-    """
     if root is None:
         return rbt_node.new_node(key, value, RED)
     
@@ -96,7 +67,7 @@ def insert_node(root, key, value):
     
     if is_red(root["right"]) and not is_red(root["left"]):
         root = rotate_left(root)
-    if is_red(root["left"]) and root["left"] is not None and is_red(root["left"]["left"]):
+    if is_red(root["left"]) and is_red(root["left"]["left"]):
         root = rotate_right(root)
     if is_red(root["left"]) and is_red(root["right"]):
         flip_colors(root)
@@ -105,16 +76,9 @@ def insert_node(root, key, value):
     return root
 
 def get(my_rbt, key):
-    """
-    Retorna el valor asociado a la llave. 
-    Usa get_node() para buscar la llave en el arbol
-    """
     return get_node(my_rbt['root'], key)
 
 def get_node(root, key):
-    """
-    Busca un nodo en el árbol.
-    """
     if root is None:
         return None
     if key < root["key"]:
@@ -125,10 +89,6 @@ def get_node(root, key):
         return root["value"]
 
 def remove(my_rbt, key):
-    """
-    Elimina un nodo del árbol.
-    Usa remove_node() para eliminar el nodo
-    """
     if not contains(my_rbt, key):
         return my_rbt
     
@@ -143,9 +103,6 @@ def remove(my_rbt, key):
     return my_rbt
 
 def remove_node(root, key):
-    """
-    Elimina un nodo del árbol.
-    """
     if root is None:
         return None
     
@@ -173,9 +130,6 @@ def remove_node(root, key):
     return balance(root)
 
 def move_red_left(node):
-    """
-    Mueve un enlace rojo a la izquierda.
-    """
     flip_colors(node)
     if node["right"] is not None and is_red(node["right"]["left"]):
         node["right"] = rotate_right(node["right"])
@@ -184,9 +138,6 @@ def move_red_left(node):
     return node
 
 def move_red_right(node):
-    """
-    Mueve un enlace rojo a la derecha.
-    """
     flip_colors(node)
     if node["left"] is not None and is_red(node["left"]["left"]):
         node = rotate_right(node)
@@ -194,9 +145,6 @@ def move_red_right(node):
     return node
 
 def balance(node):
-    """
-    Restaura el balance del árbol rojo-negro.
-    """
     if node is None:
         return None
     
@@ -210,18 +158,72 @@ def balance(node):
     node["size"] = 1 + size_tree(node["left"]) + size_tree(node["right"])
     return node
 
+def contains(my_rbt, key):
+    return get(my_rbt, key) is not None
+
+def size(my_rbt):
+    return size_tree(my_rbt['root'])
+
+def is_empty(my_rbt):
+    return my_rbt['root'] is None
+
+def key_set(my_rbt):
+    lista = slt.new_list()
+    node = my_rbt['root']
+    key_set_tree(node, lista)
+    return lista
+    
+def key_set_tree(node, lista):
+    if node is not None:
+        key_set_tree(node["left"], lista)
+        slt.add_last(lista, node["key"])
+        key_set_tree(node["right"], lista)
+        
+def value_set(my_rbt):
+    lista = slt.new_list()
+    node = my_rbt['root']
+    value_set_tree(node, lista)
+    return lista
+
+def value_set_tree(node, lista):
+    if node is not None:
+        value_set_tree(node["left"], lista)
+        slt.add_last(lista, node["value"])
+        value_set_tree(node["right"], lista)
+
+def get_min(my_rbt):
+    node = my_rbt['root']
+    if node is None:
+        return None
+    return get_min_node(node)["key"]
+
 def get_min_node(node):
-    """
-    Obtiene el nodo con la llave mínima.
-    """
     if node["left"] is None:
         return node
     return get_min_node(node["left"])
 
+def get_max(my_rbt):
+    node = my_rbt['root']
+    if node is None:
+        return None
+    else:
+        max_key = get_max_node(node)
+        return max_key
+
+def get_max_node(node):
+    if node["right"] is None:
+        return node["key"]
+    return get_max_node(node["right"])
+
+def delete_min(my_rbt):
+    if my_rbt['root'] is None:
+        return my_rbt
+    my_rbt['root'] = delete_min_node(my_rbt['root'])
+    if my_rbt['root'] is not None:
+        my_rbt['root']["color"] = BLACK
+    return my_rbt
+
 def delete_min_node(node):
-    """
-    Elimina el nodo con la llave mínima.
-    """
     if node["left"] is None:
         return None
     if not is_red(node["left"]) and not is_red(node["left"]["left"]):
@@ -229,257 +231,141 @@ def delete_min_node(node):
     node["left"] = delete_min_node(node["left"])
     return balance(node)
 
-def contains(my_rbt, key):
-    """
-    Verifica si la llave está en el árbol. 
-    Usa get() para buscar la llave en el arbol
-    """
-    return get(my_rbt, key) is not None
-
-def size(my_rbt):
-    """
-    Retorna el número de entradas en el árbol.
-    Usa size_tree() para contar los nodos
-    """
-    return size_tree(my_rbt['root'])
-
-def is_empty(my_rbt):
-    """
-    Verifica si el árbol está vacío.
-    """
-    return my_rbt['root'] is None
-
-def key_set(my_rbt):
-    """
-    Retorna un single linked list con las llaves del árbol. Usa key_set_tree()
-    """
-    keys_list = sl.new_list()
-    key_set_tree(my_rbt['root'], keys_list)
-    return keys_list
- 
-def key_set_tree(node, keys_list):
-    """
-    Retorna un single linked list con las llaves del árbol.
-    """
-    if node is None:
-        return
-    key_set_tree(node['left'], keys_list)
-    sl.add_last(keys_list, node['key'])
-    key_set_tree(node['right'], keys_list)
-
-def value_set(my_rbt):
-    """
-    Retorna un single linked list con los valores del árbol. Usa value_set_tree()
-    """
-    values_list = sl.new_list()
-    value_set_tree(my_rbt['root'], values_list)
-    return values_list
- 
-def value_set_tree(node, values_list):
-    """
-    Retorna un single linked list con los valores del árbol.
-    """
-    if node is None:
-        return
-    value_set_tree(node['left'], values_list)
-    sl.add_last(values_list, node['value'])
-    value_set_tree(node['right'], values_list)
-
-def get_min(my_rbt):
-    """
-    Retorna la llave mínima. Usa get_min_node()
-    """
-    if my_rbt['root'] is None:
-        return None
-    node = get_min_node(my_rbt['root'])
-    return node['key']
-
-
-
-def get_max(my_rbt):
-    """
-    Retorna la llave máxima. Usa get_max_node()
-    """
-    if my_rbt['root'] is None:
-        return None
-    node = get_max_node(my_rbt['root'])
-    return node['key']
-
-def get_max_node(node):
-    """
-    Obtiene el nodo con la llave máxima.
-    """
-    if node is None:
-        return None
-    if node["right"] is None:
-        return node
-    return get_max_node(node["right"])
-
-def delete_min(my_rbt):
-    """
-    Elimina el nodo con la llave mínima. Usa delete_min_node()
-    """
-    if my_rbt['root'] is None:
-        return my_rbt
-    if not is_red(my_rbt['root']['left']) and not is_red(my_rbt['root']['right']):
-        my_rbt['root']['color'] = RED
-    my_rbt['root'] = delete_min_node(my_rbt['root'])
-    if my_rbt['root'] is not None:
-        my_rbt['root']['color'] = BLACK
-    return my_rbt
-
 def delete_max(my_rbt):
-    """
-    Elimina el nodo con la llave máxima. Usa delete_max_node()
-    """
     if my_rbt['root'] is None:
         return my_rbt
-    if not is_red(my_rbt['root']['left']) and not is_red(my_rbt['root']['right']):
-        my_rbt['root']['color'] = RED
     my_rbt['root'] = delete_max_node(my_rbt['root'])
     if my_rbt['root'] is not None:
-        my_rbt['root']['color'] = BLACK
+        my_rbt['root']["color"] = BLACK
     return my_rbt
 
 def delete_max_node(node):
-    """
-    Elimina el nodo con la llave máxima.
-    """
-    if is_red(node['left']):
+    if is_red(node["left"]):
         node = rotate_right(node)
-    if node['right'] is None:
+    if node["right"] is None:
         return None
-    if not is_red(node['right']) and not is_red(node['right']['left']):
+    if not is_red(node["right"]) and not is_red(node["right"]["left"]):
         node = move_red_right(node)
-    node['right'] = delete_max_node(node['right'])
+    node["right"] = delete_max_node(node["right"])
     return balance(node)
 
 def floor(my_rbt, key):
-    """
-    Retorna el nodo con la llave máxima menor o igual a la clave. Usa floor_key()
-    """
-    return floor_key(my_rbt['root'], key)
-
-def floor_key(root, key):
-    """
-    Obtiene la llave máxima menor o igual a la clave.
-    """
-    if root is None:
+    node = my_rbt['root']
+    if node is None:
         return None
-    if key == root['key']:
-        return root['key']
-    if key < root['key']:
-        return floor_key(root['left'], key)
-    right_floor = floor_key(root['right'], key)
-    if right_floor is not None:
-        return right_floor
-    return root['key']
+    floor_key = floor_node(node, key)
+    return floor_key
 
+def floor_node(node, key):
+    if node is None:
+        return None
+    if key == node["key"]:
+        return node["key"]
+    if key < node["key"]:
+        return floor_node(node["left"], key)
+    floor_right = floor_node(node["right"], key)
+    if floor_right is not None:
+        return floor_right
+    else:
+        return node["key"]
+    
 def ceiling(my_rbt, key):
-    """
-    Retorna el nodo con la llave mínima mayor o igual a la clave. Usa ceiling_key()
-    """
-    return ceiling_key(my_rbt['root'], key)
-
-def ceiling_key(root, key):
-    """
-    Obtiene la llave mínima mayor o igual a la clave.
-    """
-    if root is None:
+    node = my_rbt['root']
+    if node is None:
         return None
-    if key == root['key']:
-        return root['key']
-    if key > root['key']:
-        return ceiling_key(root['right'], key)
-    left_ceiling = ceiling_key(root['left'], key)
-    if left_ceiling is not None:
-        return left_ceiling
-    return root['key']
+    result = ceiling_key(node, key)
+    return result
 
-def select(my_rbt, pos):
-    """
-    Retorna el nodo con la posición pos en el árbol. Usa select_key()
-    """
-    return select_key(my_rbt['root'], pos)
-
-def select_key(root, pos):
-    """
-    Obtiene la llave en la posición pos en el árbol.
-    """
-    if root is None:
+def ceiling_key(node, key):
+    if node is None:
         return None
-    left_size = size_tree(root['left'])
+    if key == node["key"]:
+        return node["key"]
+    if key > node["key"]:
+        return ceiling_key(node["right"], key)
+    ceiling_left = ceiling_key(node["left"], key)
+    if ceiling_left is not None:
+        return ceiling_left
+    else:
+        return node["key"]
+    
+def select(my_bst, pos):
+    node = my_bst['root']
+    if node is None:
+        return None
+    result = select_key(node, pos)
+    if result is not None:
+        return result["key"]
+    else:
+        return None
+    
+def select_key(node, pos):
+    if node is None:
+        return None
+    left_size = size_tree(node["left"])
     if pos < left_size:
-        return select_key(root['left'], pos)
-    if pos == left_size:
-        return root['key']
-    return select_key(root['right'], pos - left_size - 1)
-
-def rank(my_rbt, key):
-    """
-    Retorna la posición de la llave en el árbol. Usa rank_keys()
-    """
-    return rank_keys(my_rbt['root'], key)
-
-def rank_keys(root, key):
-    """
-    Obtiene la posición de la llave en el árbol.
-    """
-    if root is None:
+        return select_key(node["left"], pos)
+    elif pos > left_size:
+        return select_key(node["right"], pos - left_size - 1)
+    else:
+        return node
+    
+def rank(my_bst, key):
+    node = my_bst['root']
+    if node is None:
         return 0
-    if key < root['key']:
-        return rank_keys(root['left'], key)
-    if key == root['key']:
-        return root['size']
-    return rank_keys(root['right'], key) + root['size'] + 1
+    return rank_keys(node, key)
 
+def rank_keys(node, key):
+    if node is None:
+        return 0
+    if key < node["key"]:
+        return rank_keys(node["left"], key)
+    elif key > node["key"]:
+        left_size = size_tree(node["left"])
+        return 1 + left_size + rank_keys(node["right"], key)
+    else:
+        return size_tree(node["left"])
+    
 def height(my_rbt):
-    """
-    Retorna la altura del árbol. Usa height_tree()
-    """
-    return height_tree(my_rbt['root'])
-
-def height_tree(node):
-    """
-    Obtiene la altura del nodo.
-    """
+    node = my_rbt['root']
     if node is None:
         return -1
-    return 1 + max(height_tree(node['left']), height_tree(node['right']))
+    return height_tree(node)
 
-def keys(my_rbt, key_initial, key_final):
-    """
-    Retorna una lista con todas las llaves del árbol entre key_initial y key_final. Usa keys_range()
-    """
-    return keys_range(my_rbt['root'], key_initial, key_final)
-
-def keys_range(node, key_initial, key_final):
-    """
-    Obtiene una lista con todas las llaves del nodo entre key_initial y key_final.
-    """
+def height_tree(node):
     if node is None:
-        return []
-    if node['key'] >= key_initial and node['key'] <= key_final:
-        return keys_range(node['left'], key_initial, key_final) + [node['key']] + keys_range(node['right'], key_initial, key_final)
-    if node['key'] < key_initial:
-        return keys_range(node['right'], key_initial, key_final)
-    return keys_range(node['left'], key_initial, key_final)
+        return -1
+    left_height = height_tree(node["left"])
+    right_height = height_tree(node["right"])
+    return 1 + max(left_height, right_height)
 
-def values(my_rbt, key_initial, key_final):
-    """
-    Retorna una lista con todos los valores del árbol entre key_initial y key_final. Usa values_range()
-    """
-    return values_range(my_rbt['root'], key_initial, key_final)
+def keys(my_bst, key_initial, key_final):
+    lista = slt.new_list()
+    keys_range(my_bst['root'], key_initial, key_final, lista)
+    return lista
 
-def values_range(node, key_initial, key_final):
-    """
-    Obtiene una lista con todos los valores del nodo entre key_initial y key_final.
-    """
+def keys_range(node, key_initial, key_final, lista):
     if node is None:
-        return []
-    if node['key'] >= key_initial and node['key'] <= key_final:
-        return values_range(node['left'], key_initial, key_final) + [node['value']] + values_range(node['right'], key_initial, key_final)
-    if node['key'] < key_initial:
-        return values_range(node['right'], key_initial, key_final)
-    return values_range(node['left'], key_initial, key_final)
+        return
+    if key_initial < node["key"]:
+        keys_range(node["left"], key_initial, key_final, lista)
+    if key_initial <= node["key"] <= key_final:
+        slt.add_last(lista, node["key"])
+    if key_final > node["key"]:
+        keys_range(node["right"], key_initial, key_final, lista)
+        
+def values(my_bst, key_initial, key_final):
+    lista = slt.new_list()
+    values_range(my_bst['root'], key_initial, key_final, lista)
+    return lista
 
+def values_range(node, key_initial, key_final, lista):
+    if node is None:
+        return
+    if key_initial < node["key"]:
+        values_range(node["left"], key_initial, key_final, lista)
+    if key_initial <= node["key"] <= key_final:
+        slt.add_last(lista, node["value"])
+    if key_final > node["key"]:
+        values_range(node["right"], key_initial, key_final, lista)

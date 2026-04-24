@@ -59,7 +59,8 @@ def print_menu():
     print("2- Cargar información de crimenes")
     print("3- Consultar crimenes en un rango de fechas")
     print("4- Consultar crimenes por codigo y fecha")
-    #TODO Agregar opción 5 en el menú, consultar por REPORTING_AREA
+    #DONE Agregar opción 5 en el menú, consultar por REPORTING_AREA
+    print("5- Consultar crimenes por REPORTING_AREA")
     print("0- Salir")
     print("*******************************************")
 
@@ -89,6 +90,10 @@ def main():
             print('Elementos en el arbol: ' + str(logic.index_size(control)))
             print('Menor Llave: ' + str(logic.min_key(control)))
             print('Mayor Llave: ' + str(logic.max_key(control)))
+            print('Altura del arbol de areas: ' + str(logic.index_height_areas(control)))
+            print('Elementos en el arbol de areas: ' + str(logic.index_size_areas(control)))
+            print('Menor Llave de areas: ' + str(logic.min_key_areas(control)))
+            print('Mayor Llave de areas: ' + str(logic.max_key_areas(control)))
 
         elif int(inputs[0]) == 3:
             print("\nBuscando crimenes en un rango de fechas: ")
@@ -106,10 +111,15 @@ def main():
             print("\nTotal de ofensas tipo: " + offensecode + " en esa fecha:  " +
                 str(numoffenses))
         elif int(inputs[0]) == 5:
-            # TODO lab 9, implementar el I/O e invocar las funcions de la opcion 5
+            # DONE lab 9, implementar el I/O e invocar las funcions de la opcion 5
+            
             print("\nBuscando crimenes en un rango de areas: ")
             print("Las areas estan numeradas con enteros (1 - 962)")
             print("Un area desconocida tiene el el numero 9999")
+            initialArea = input("Area inicial: ")
+            finalArea = input("Area final: ")
+            total = logic.get_crimes_by_range_area(control, initialArea, finalArea)
+            print("\nTotal de crimenes en el rango de areas: " + str(total))
         else:
             sys.exit(0)
     sys.exit(0)
